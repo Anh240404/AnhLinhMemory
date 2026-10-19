@@ -4,7 +4,8 @@ Web tặng người yêu dịp 20-10, deploy Vercel, dữ liệu Supabase. Đọ
 
 ## Stack (không được đổi)
 - Vite + JavaScript thuần (ES modules). KHÔNG React/Vue/Tailwind/TypeScript/jQuery.
-- Thư viện duy nhất: `@supabase/supabase-js`. KHÔNG `npm install` thêm gói nào. Không CDN script.
+- Thư viện duy nhất: `@supabase/supabase-js`. KHÔNG `npm install` thêm gói nào. Không CDN script
+  (ngoại lệ duy nhất: YouTube IFrame API trong `src/lib/youtube.js` để phát nhạc từ link YouTube).
 - Hiệu ứng: CSS, Canvas 2D, CSS 3D transform, SVG. Không WebGL/Three.js.
 
 ## Ranh giới file

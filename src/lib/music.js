@@ -1,24 +1,94 @@
 import { h } from './utils.js';
+import { loadYouTubeApi, parseYouTube } from './youtube.js';
 
-/** Nhạc nền + nút bật/tắt nổi góc phải. play() phải gọi trong sự kiện bấm của người dùng. */
+/**
+ * Nhạc nền + nút bật/tắt nổi góc phải. url là file mp3/m4a hoặc link YouTube.
+ * play() phải gọi trong sự kiện bấm của người dùng.
+ */
 export function createMusic(url) {
-  const audio = new Audio();
-  audio.loop = true;
-  audio.preload = 'auto';
-  if (url) audio.src = url;
-
   const btn = h('button', { class: 'music-btn', type: 'button', 'aria-label': 'Bật/tắt nhạc', hidden: true }, '♪');
-  btn.addEventListener('click', () => (audio.paused ? audio.play().catch(() => {}) : audio.pause()));
-  audio.addEventListener('play', () => btn.classList.add('is-on'));
-  audio.addEventListener('pause', () => btn.classList.remove('is-on'));
   document.body.append(btn);
+  const setOn = (on) => btn.classList.toggle('is-on', on);
+
+  const yt = parseYouTube(url);
+  const player = yt ? youtubePlayer(yt, setOn) : audioPlayer(url, setOn);
+  btn.addEventListener('click', () => player.toggle());
 
   return {
     play() {
       if (!url) return;
       btn.hidden = false;
-      audio.play().catch(() => {});
+      player.play();
     },
-    pause: () => audio.pause(),
+    pause: () => player.pause(),
   };
+}
+
+function audioPlayer(url, setOn) {
+  const audio = new Audio();
+  audio.loop = true;
+  audio.preload = 'auto';
+  if (url) audio.src = url;
+  audio.addEventListener('play', () => setOn(true));
+  audio.addEventListener('pause', () => setOn(false));
+  const play = () => audio.play().catch(() => {});
+  return { play, pause: () => audio.pause(), toggle: () => (audio.paused ? play() : audio.pause()) };
+}
+
+// Trình phát YouTube ẩn (không dùng display:none vì một số trình duyệt sẽ không phát).
+function youtubePlayer({ id, start }, setOn) {
+  const host = h('div', {
+    'aria-hidden': 'true',
+    style: { position: 'fixed', left: '0', bottom: '0', width: '200px', height: '200px', opacity: '0', pointerEvents: 'none', zIndex: '-1' },
+  });
+  const mount = h('div');
+  host.append(mount);
+  document.body.append(host);
+
+  let player = null, ready = false, want = false;
+
+  // Sự kiện onStateChange của YouTube không phải lúc nào cũng tới → tự đọc trạng thái mỗi giây
+  // để cập nhật nút ♪ và phát lại từ đầu khi hết bài.
+  const watch = (YT) => setInterval(() => {
+    if (!ready) return;
+    const s = player.getPlayerState();
+    setOn(s === YT.PlayerState.PLAYING);
+    if (s === YT.PlayerState.ENDED && want) {
+      player.seekTo(start, true);
+      player.playVideo();
+    }
+  }, 1000);
+
+  loadYouTubeApi().then((YT) => {
+    player = new YT.Player(mount, {
+      width: 200,
+      height: 200,
+      videoId: id,
+      playerVars: { autoplay: 0, controls: 0, disablekb: 1, playsinline: 1, start, rel: 0 },
+      events: {
+        onReady: () => {
+          ready = true;
+          watch(YT);
+          if (want) play();
+        },
+        onError: (e) => console.warn('YouTube không phát được video này (mã lỗi', e.data, ')'),
+      },
+    });
+  });
+
+  function play() {
+    want = true;
+    setOn(true);
+    if (ready) {
+      player.unMute();
+      player.setVolume(80);
+      player.playVideo();
+    }
+  }
+  function pause() {
+    want = false;
+    setOn(false);
+    if (ready) player.pauseVideo();
+  }
+  return { play, pause, toggle: () => (want ? pause() : play()) };
 }

@@ -19,6 +19,25 @@ const TABS = [
 
 let currentUserId = null;
 
+const withTimeout = (p, ms) =>
+  Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('Hết thời gian chờ')), ms))]);
+
+// Phiên đăng nhập cũ lưu trong trình duyệt có thể bị kẹt (nhiều tab, token hết hạn) → xoá để đăng nhập lại.
+function clearStoredSession() {
+  try {
+    Object.keys(localStorage).filter((k) => k.startsWith('sb-')).forEach((k) => localStorage.removeItem(k));
+  } catch {}
+}
+
+// Không bao giờ để màn hình trống: lỗi bất ngờ thì hiện ra.
+function showFatal(err) {
+  console.error(err);
+  toast(`Lỗi: ${err?.message || err}`, 'err');
+  if (!root.querySelector('form, .ad-main, .ad-tabs')) renderLogin(`Có lỗi khi tải trang: ${err?.message || err}. Thử đăng nhập lại.`);
+}
+addEventListener('error', (e) => showFatal(e.error || e.message));
+addEventListener('unhandledrejection', (e) => showFatal(e.reason));
+
 function brand() {
   return h('div.ad-brand', {}, h('span.ad-brand-heart', { 'aria-hidden': 'true' }, '💗'), 'Quản trị quà 20-10');
 }
@@ -62,10 +81,13 @@ function renderLogin(message) {
         btn.disabled = true;
         btn.textContent = 'Đang đăng nhập…';
         err.hidden = true;
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.value.trim(),
-          password: password.value,
-        }).catch((e) => ({ data: null, error: e }));
+        const { data, error } = await withTimeout(
+          supabase.auth.signInWithPassword({ email: email.value.trim(), password: password.value }),
+          15000,
+        ).catch((e) => {
+          clearStoredSession();
+          return { data: null, error: e };
+        });
         if (error) {
           err.textContent = error.message === 'Invalid login credentials' ? 'Sai email hoặc mật khẩu.' : error.message;
           err.hidden = false;
@@ -175,10 +197,24 @@ async function init() {
   });
 
   root.replaceChildren(h('main.ad-center', {}, h('p.ad-muted', {}, 'Đang tải…')));
-  const { data, error } = await supabase.auth.getSession();
-  if (error) toast(error.message, 'err');
-  if (data?.session?.user) await enter(data.session.user);
-  else renderLogin();
+  let user = null;
+  try {
+    const { data, error } = await withTimeout(supabase.auth.getSession(), 8000);
+    if (error) throw error;
+    user = data?.session?.user ?? null;
+  } catch (e) {
+    console.warn(e);
+    clearStoredSession();
+    return renderLogin('Phiên đăng nhập cũ bị lỗi nên đã được xoá. Vui lòng đăng nhập lại.');
+  }
+  if (!user) return renderLogin();
+  try {
+    await withTimeout(enter(user), 10000);
+  } catch (e) {
+    console.warn(e);
+    clearStoredSession();
+    renderLogin('Không kiểm tra được quyền (mạng chậm hoặc phiên cũ). Vui lòng đăng nhập lại.');
+  }
 }
 
 init();

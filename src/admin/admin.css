@@ -494,6 +494,18 @@ textarea.ad-input {
   margin: 4px 0 12px;
   display: block;
 }
+.ad-yt {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 4px 0 12px;
+  border: 0;
+  border-radius: 12px;
+}
+.ad-audio[hidden],
+.ad-yt[hidden] {
+  display: none;
+}
 
 /* ===== Toast ===== */
 .ad-toasts {
