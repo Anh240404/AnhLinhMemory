@@ -8,21 +8,21 @@ const TYPES = { mp3: 'audio/mpeg', m4a: 'audio/mp4', aac: 'audio/aac', wav: 'aud
 
 export async function renderMusic(panel) {
   const storage = supabase.storage.from(MEDIA_BUCKET);
-  panel.replaceChildren(h('p.ad-muted', {}, 'Đang tải…'));
+  panel.replaceChildren(h('p.qt-muted', {}, 'Đang tải…'));
   const data = await loadSettingsData();
-  if (data === null) return panel.replaceChildren(h('p.ad-muted', {}, 'Không tải được dữ liệu.'));
+  if (data === null) return panel.replaceChildren(h('p.qt-muted', {}, 'Không tải được dữ liệu.'));
   let musicUrl = data.musicUrl || '';
 
-  const fileInput = h('input.ad-visually-hidden', { type: 'file', accept: '.mp3,.m4a,.aac,.wav,.ogg,audio/*', id: 'ad-music-file' });
-  const pickBtn = h('label.ad-btn.ad-btn--primary.ad-btn--block', { for: 'ad-music-file' });
-  const status = h('p.ad-muted');
-  const player = h('audio.ad-audio', { controls: true, preload: 'none' });
-  const delBtn = h('button.ad-btn.ad-btn--danger.ad-btn--block', { type: 'button' }, 'Xoá nhạc');
-  const ytFrame = h('iframe.ad-yt', { title: 'Nghe thử YouTube', allow: 'autoplay; encrypted-media', allowFullscreen: true });
-  const nowBox = h('div.ad-card', {}, h('h3.ad-card-title', {}, 'Nhạc hiện tại'), player, ytFrame, delBtn);
+  const fileInput = h('input.qt-visually-hidden', { type: 'file', accept: '.mp3,.m4a,.aac,.wav,.ogg,audio/*', id: 'qt-music-file' });
+  const pickBtn = h('label.qt-btn.qt-btn--primary.qt-btn--block', { for: 'qt-music-file' });
+  const status = h('p.qt-muted');
+  const player = h('audio.qt-audio', { controls: true, preload: 'none' });
+  const delBtn = h('button.qt-btn.qt-btn--danger.qt-btn--block', { type: 'button' }, 'Xoá nhạc');
+  const ytFrame = h('iframe.qt-yt', { title: 'Nghe thử YouTube', allow: 'autoplay; encrypted-media', allowFullscreen: true });
+  const nowBox = h('div.qt-card', {}, h('h3.qt-card-title', {}, 'Nhạc hiện tại'), player, ytFrame, delBtn);
 
-  const ytInput = h('input.ad-input', { type: 'url', inputMode: 'url', placeholder: 'https://www.youtube.com/watch?v=…', autocomplete: 'off' });
-  const ytBtn = h('button.ad-btn.ad-btn--primary.ad-btn--block', { type: 'button' }, 'Lưu link YouTube');
+  const ytInput = h('input.qt-input', { type: 'url', inputMode: 'url', placeholder: 'https://www.youtube.com/watch?v=…', autocomplete: 'off' });
+  const ytBtn = h('button.qt-btn.qt-btn--primary.qt-btn--block', { type: 'button' }, 'Lưu link YouTube');
   ytBtn.addEventListener('click', () => {
     const yt = parseYouTube(ytInput.value);
     if (!yt) return toast('Link YouTube không hợp lệ', 'err');
@@ -70,7 +70,7 @@ export async function renderMusic(panel) {
     if (file.size > MAX_BYTES) return toast('File quá lớn (tối đa 20MB)', 'err');
 
     fileInput.disabled = true;
-    pickBtn.classList.add('ad-btn--disabled');
+    pickBtn.classList.add('qt-btn--disabled');
     status.textContent = `Đang tải lên "${file.name}"…`;
     try {
       const path = `music/${uuid()}.${ext}`;
@@ -89,7 +89,7 @@ export async function renderMusic(panel) {
       failed(e, 'Không tải nhạc lên được');
     } finally {
       fileInput.disabled = false;
-      pickBtn.classList.remove('ad-btn--disabled');
+      pickBtn.classList.remove('qt-btn--disabled');
       render();
     }
   });
@@ -107,14 +107,14 @@ export async function renderMusic(panel) {
 
   panel.replaceChildren(
     h(
-      'div.ad-card',
+      'div.qt-card',
       {},
-      h('h3.ad-card-title', {}, 'Cách 1: Link YouTube'),
+      h('h3.qt-card-title', {}, 'Cách 1: Link YouTube'),
       ytInput,
       ytBtn,
-      h('small.ad-hint', {}, 'Muốn bắt đầu từ giây nào thì thêm &t=45 vào cuối link. Nếu khung nghe thử bên dưới báo "không phát được", video đó chặn nhúng — chọn video khác (bản lyric/audio thường được).'),
+      h('small.qt-hint', {}, 'Muốn bắt đầu từ giây nào thì thêm &t=45 vào cuối link. Nếu khung nghe thử bên dưới báo "không phát được", video đó chặn nhúng — chọn video khác (bản lyric/audio thường được).'),
     ),
-    h('div.ad-card', {}, h('h3.ad-card-title', {}, 'Cách 2: Tải file nhạc'), fileInput, pickBtn, h('small.ad-hint', {}, 'Nhận mp3, m4a, aac, wav, ogg — tối đa 20MB. Tải file mới sẽ thay cho link YouTube (và ngược lại).'), status),
+    h('div.qt-card', {}, h('h3.qt-card-title', {}, 'Cách 2: Tải file nhạc'), fileInput, pickBtn, h('small.qt-hint', {}, 'Nhận mp3, m4a, aac, wav, ogg — tối đa 20MB. Tải file mới sẽ thay cho link YouTube (và ngược lại).'), status),
     nowBox,
   );
   render();

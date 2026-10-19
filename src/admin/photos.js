@@ -35,16 +35,16 @@ export async function renderPhotos(panel) {
   let rows = [];
   const storage = supabase.storage.from(MEDIA_BUCKET);
 
-  const fileInput = h('input.ad-visually-hidden', { type: 'file', accept: 'image/*', multiple: true, id: 'ad-photo-file' });
-  const pickBtn = h('label.ad-btn.ad-btn--primary.ad-btn--block', { for: 'ad-photo-file' }, '＋ Chọn ảnh để tải lên');
-  const bar = h('div.ad-progress-bar');
-  const progressText = h('span.ad-progress-text');
-  const progress = h('div.ad-progress', { hidden: true }, h('div.ad-progress-track', {}, bar), progressText);
-  const count = h('p.ad-muted');
-  const grid = h('div.ad-photo-grid');
+  const fileInput = h('input.qt-visually-hidden', { type: 'file', accept: 'image/*', multiple: true, id: 'qt-photo-file' });
+  const pickBtn = h('label.qt-btn.qt-btn--primary.qt-btn--block', { for: 'qt-photo-file' }, '＋ Chọn ảnh để tải lên');
+  const bar = h('div.qt-progress-bar');
+  const progressText = h('span.qt-progress-text');
+  const progress = h('div.qt-progress', { hidden: true }, h('div.qt-progress-track', {}, bar), progressText);
+  const count = h('p.qt-muted');
+  const grid = h('div.qt-photo-grid');
 
   panel.replaceChildren(
-    h('div.ad-card', {}, fileInput, pickBtn, h('small.ad-hint', {}, 'Chọn được nhiều ảnh cùng lúc. Ảnh sẽ được nén tự động.'), progress),
+    h('div.qt-card', {}, fileInput, pickBtn, h('small.qt-hint', {}, 'Chọn được nhiều ảnh cùng lúc. Ảnh sẽ được nén tự động.'), progress),
     count,
     grid,
   );
@@ -76,7 +76,7 @@ export async function renderPhotos(panel) {
     const files = [...fileInput.files].filter((f) => f.type.startsWith('image/') || /\.(heic|heif)$/i.test(f.name));
     fileInput.value = '';
     if (!files.length) return;
-    pickBtn.classList.add('ad-btn--disabled');
+    pickBtn.classList.add('qt-btn--disabled');
     fileInput.disabled = true;
     progress.hidden = false;
     let done = 0;
@@ -94,14 +94,14 @@ export async function renderPhotos(panel) {
       done++;
       setProgress(done, files.length, bad);
     }
-    pickBtn.classList.remove('ad-btn--disabled');
+    pickBtn.classList.remove('qt-btn--disabled');
     fileInput.disabled = false;
     if (done - bad) toast(`Đã tải lên ${done - bad} ảnh 📸`);
     setTimeout(() => (progress.hidden = true), 1500);
   });
 
   function card(row, i) {
-    const caption = h('input.ad-input.ad-input--sm', { type: 'text', placeholder: 'Chú thích…', 'aria-label': 'Chú thích ảnh' });
+    const caption = h('input.qt-input.qt-input--sm', { type: 'text', placeholder: 'Chú thích…', 'aria-label': 'Chú thích ảnh' });
     caption.value = row.caption ?? '';
     caption.addEventListener('blur', async () => {
       const v = caption.value.trim();
@@ -135,20 +135,20 @@ export async function renderPhotos(panel) {
       toast('Đã xoá ảnh');
     };
 
-    const img = h('img.ad-photo-img', { src: row.url, alt: row.caption || `Ảnh ${i + 1}`, loading: 'lazy', decoding: 'async' });
-    img.addEventListener('error', () => img.classList.add('ad-photo-img--broken'), { once: true });
+    const img = h('img.qt-photo-img', { src: row.url, alt: row.caption || `Ảnh ${i + 1}`, loading: 'lazy', decoding: 'async' });
+    img.addEventListener('error', () => img.classList.add('qt-photo-img--broken'), { once: true });
 
     return h(
-      'div.ad-photo',
+      'div.qt-photo',
       {},
-      h('div.ad-photo-thumb', {}, img, h('span.ad-photo-no', {}, i + 1)),
+      h('div.qt-photo-thumb', {}, img, h('span.qt-photo-no', {}, i + 1)),
       caption,
       h(
-        'div.ad-row-actions',
+        'div.qt-row-actions',
         {},
-        h('button.ad-icon-btn', { type: 'button', title: 'Lên', 'aria-label': 'Đưa lên', disabled: i === 0, onclick: move(-1) }, '↑'),
-        h('button.ad-icon-btn', { type: 'button', title: 'Xuống', 'aria-label': 'Đưa xuống', disabled: i === rows.length - 1, onclick: move(1) }, '↓'),
-        h('button.ad-icon-btn.ad-icon-btn--danger', { type: 'button', title: 'Xoá', 'aria-label': 'Xoá ảnh', onclick: del }, '✕'),
+        h('button.qt-icon-btn', { type: 'button', title: 'Lên', 'aria-label': 'Đưa lên', disabled: i === 0, onclick: move(-1) }, '↑'),
+        h('button.qt-icon-btn', { type: 'button', title: 'Xuống', 'aria-label': 'Đưa xuống', disabled: i === rows.length - 1, onclick: move(1) }, '↓'),
+        h('button.qt-icon-btn.qt-icon-btn--danger', { type: 'button', title: 'Xoá', 'aria-label': 'Xoá ảnh', onclick: del }, '✕'),
       ),
     );
   }

@@ -28,8 +28,8 @@ export async function renderList(panel, table) {
   const makeInput = (f, value = '') => {
     const props = { placeholder: f.placeholder, 'aria-label': f.label };
     const el = f.multiline
-      ? h('textarea.ad-input', { ...props, rows: 2 })
-      : h(`input.ad-input${f.size ? `.ad-input--${f.size}` : ''}`, { ...props, type: 'text' });
+      ? h('textarea.qt-input', { ...props, rows: 2 })
+      : h(`input.qt-input${f.size ? `.qt-input--${f.size}` : ''}`, { ...props, type: 'text' });
     el.value = value;
     return el;
   };
@@ -48,9 +48,9 @@ export async function renderList(panel, table) {
 
   // Form thêm mới
   const addInputs = Object.fromEntries(cfg.fields.map((f) => [f.key, makeInput(f)]));
-  const addBtn = h('button.ad-btn.ad-btn--primary', { type: 'submit' }, `＋ Thêm ${cfg.noun}`);
+  const addBtn = h('button.qt-btn.qt-btn--primary', { type: 'submit' }, `＋ Thêm ${cfg.noun}`);
   const addForm = h(
-    'form.ad-card.ad-add',
+    'form.qt-card.qt-add',
     {
       onsubmit: (e) => {
         e.preventDefault();
@@ -70,18 +70,18 @@ export async function renderList(panel, table) {
         });
       },
     },
-    h('div.ad-inline', {}, cfg.fields.map((f) => addInputs[f.key])),
+    h('div.qt-inline', {}, cfg.fields.map((f) => addInputs[f.key])),
     addBtn,
-    h('small.ad-hint', {}, cfg.hint),
+    h('small.qt-hint', {}, cfg.hint),
   );
 
-  const count = h('p.ad-muted', {}, 'Đang tải…');
-  const list = h('ol.ad-list');
+  const count = h('p.qt-muted', {}, 'Đang tải…');
+  const list = h('ol.qt-list');
   panel.replaceChildren(addForm, count, list);
 
   function item(row, i) {
     const inputs = Object.fromEntries(cfg.fields.map((f) => [f.key, makeInput(f, row[f.key] ?? '')]));
-    const saveBtn = h('button.ad-btn.ad-btn--sm', { type: 'button', hidden: true }, 'Lưu');
+    const saveBtn = h('button.qt-btn.qt-btn--sm', { type: 'button', hidden: true }, 'Lưu');
     const dirty = () => cfg.fields.some((f) => inputs[f.key].value.trim() !== (row[f.key] ?? ''));
     for (const f of cfg.fields) inputs[f.key].addEventListener('input', () => (saveBtn.hidden = !dirty()));
 
@@ -115,16 +115,16 @@ export async function renderList(panel, table) {
     };
 
     return h(
-      'li.ad-card.ad-item',
+      'li.qt-card.qt-item',
       {},
-      h('div.ad-inline', {}, cfg.fields.map((f) => inputs[f.key])),
+      h('div.qt-inline', {}, cfg.fields.map((f) => inputs[f.key])),
       h(
-        'div.ad-row-actions',
+        'div.qt-row-actions',
         {},
         saveBtn,
-        h('button.ad-icon-btn', { type: 'button', 'aria-label': 'Đưa lên', disabled: i === 0, onclick: move(-1) }, '↑'),
-        h('button.ad-icon-btn', { type: 'button', 'aria-label': 'Đưa xuống', disabled: i === rows.length - 1, onclick: move(1) }, '↓'),
-        h('button.ad-icon-btn.ad-icon-btn--danger', { type: 'button', 'aria-label': 'Xoá', onclick: del }, '✕'),
+        h('button.qt-icon-btn', { type: 'button', 'aria-label': 'Đưa lên', disabled: i === 0, onclick: move(-1) }, '↑'),
+        h('button.qt-icon-btn', { type: 'button', 'aria-label': 'Đưa xuống', disabled: i === rows.length - 1, onclick: move(1) }, '↓'),
+        h('button.qt-icon-btn.qt-icon-btn--danger', { type: 'button', 'aria-label': 'Xoá', onclick: del }, '✕'),
       ),
     );
   }

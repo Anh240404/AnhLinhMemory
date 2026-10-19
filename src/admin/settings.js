@@ -54,9 +54,9 @@ export async function saveSettings(patch) {
 }
 
 export async function renderInfo(panel) {
-  panel.replaceChildren(h('p.ad-muted', {}, 'Đang tải…'));
+  panel.replaceChildren(h('p.qt-muted', {}, 'Đang tải…'));
   const data = await loadSettingsData();
-  if (data === null) return panel.replaceChildren(h('p.ad-muted', {}, 'Không tải được dữ liệu.'));
+  if (data === null) return panel.replaceChildren(h('p.qt-muted', {}, 'Không tải được dữ liệu.'));
   const values = { ...DEFAULT_SETTINGS, ...data };
 
   const keys = Object.keys(DEFAULT_SETTINGS).filter((k) => k !== 'musicUrl');
@@ -67,25 +67,25 @@ export async function renderInfo(panel) {
   const inputs = {};
   const field = (key) => {
     const [label, hint] = LABELS[key] || [key];
-    const id = `ad-f-${key}`;
+    const id = `qt-f-${key}`;
     let input;
-    if (key === 'letterBody') input = h('textarea.ad-input', { id, rows: 8 });
-    else if (key === 'startDate') input = h('input.ad-input', { id, type: 'date' });
-    else input = h('input.ad-input', { id, type: 'text' });
+    if (key === 'letterBody') input = h('textarea.qt-input', { id, rows: 8 });
+    else if (key === 'startDate') input = h('input.qt-input', { id, type: 'date' });
+    else input = h('input.qt-input', { id, type: 'text' });
     input.value = values[key] ?? '';
     inputs[key] = input;
     return h(
-      'div.ad-field',
+      'div.qt-field',
       {},
-      h('label.ad-label', { for: id }, label),
+      h('label.qt-label', { for: id }, label),
       input,
-      hint && h('small.ad-hint', {}, hint),
+      hint && h('small.qt-hint', {}, hint),
     );
   };
 
-  const saveBtn = h('button.ad-btn.ad-btn--primary.ad-btn--block', { type: 'submit' }, 'Lưu thông tin');
+  const saveBtn = h('button.qt-btn.qt-btn--primary.qt-btn--block', { type: 'submit' }, 'Lưu thông tin');
   const form = h(
-    'form.ad-form',
+    'form.qt-form',
     {
       onsubmit: (e) => {
         e.preventDefault();
@@ -96,8 +96,8 @@ export async function renderInfo(panel) {
         });
       },
     },
-    groups.map(([title, ks]) => h('fieldset.ad-card', {}, h('legend.ad-card-title', {}, title), ks.map(field))),
-    h('div.ad-sticky', {}, saveBtn),
+    groups.map(([title, ks]) => h('fieldset.qt-card', {}, h('legend.qt-card-title', {}, title), ks.map(field))),
+    h('div.qt-sticky', {}, saveBtn),
   );
   panel.replaceChildren(form);
 }

@@ -1,4 +1,4 @@
-/** Tạo phần tử: h('button.ad-btn', { onclick }, 'Lưu') */
+/** Tạo phần tử: h('button.qt-btn', { onclick }, 'Lưu') */
 export function h(tag, props = {}, ...children) {
   const [name, ...classes] = tag.split('.');
   const el = document.createElement(name || 'div');
@@ -20,12 +20,12 @@ export function h(tag, props = {}, ...children) {
 let toastBox;
 export function toast(msg, type = 'ok') {
   if (!toastBox) {
-    toastBox = h('div.ad-toasts', { role: 'status', 'aria-live': 'polite' });
+    toastBox = h('div.qt-toasts', { role: 'status', 'aria-live': 'polite' });
     document.body.append(toastBox);
   }
-  const t = h(`div.ad-toast.ad-toast--${type}`, {}, msg);
+  const t = h(`div.qt-toast.qt-toast--${type}`, {}, msg);
   toastBox.append(t);
-  setTimeout(() => t.classList.add('ad-toast--out'), type === 'err' ? 5000 : 2600);
+  setTimeout(() => t.classList.add('qt-toast--out'), type === 'err' ? 5000 : 2600);
   setTimeout(() => t.remove(), type === 'err' ? 5400 : 3000);
 }
 
@@ -41,14 +41,14 @@ export function failed(error, prefix = 'Lỗi') {
 export async function busy(btn, fn) {
   if (btn.disabled) return;
   btn.disabled = true;
-  btn.classList.add('ad-btn--busy');
+  btn.classList.add('qt-btn--busy');
   try {
     return await fn();
   } catch (e) {
     failed(e);
   } finally {
     btn.disabled = false;
-    btn.classList.remove('ad-btn--busy');
+    btn.classList.remove('qt-btn--busy');
   }
 }
 
