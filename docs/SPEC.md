@@ -89,7 +89,9 @@ Thư cuộn được bên trong nếu dài. `nextButton` sau khi gõ xong.
 ### 08-finale — Câu hỏi cuối
 `finalQuestion` lớn giữa màn. Hai nút: `finalYes` (hồng, to dần mỗi lần né) và `finalNo` — khi pointer lại gần
 (desktop) hoặc khi chạm (mobile) thì nút "Không" nhảy tới vị trí ngẫu nhiên trong màn hình (không ra ngoài, không đè
-nút Có). Bấm Có → pháo hoa tim (canvas, ~3s, rồi tiếp tục rơi nhẹ) + `finalThanks` script cực lớn. Cảnh cuối không resolve.
+nút Có). Mỗi lần né, nút đổi sang câu kế tiếp trong `finalNoLines` (mỗi dòng 1 câu) và làm một trò khác nhau theo vòng:
+nhảy, teo nhỏ, xoay vòng, lắc đầu tại chỗ, biến mất rồi hiện chỗ khác, phân thân 3 nút giả (chạm thì vỡ), lộn ngược.
+Hết câu → nút đầu hàng: thành nút hồng `finalNoSurrender` ngay dưới nút Có, bấm vào = Có. Bấm Có → pháo hoa tim (canvas, ~3s, rồi tiếp tục rơi nhẹ) + `finalThanks` script cực lớn. Cảnh cuối không resolve.
 
 ## Admin (`/admin`)
 File: `src/admin/admin.js`, `src/admin/admin.css` (+ module phụ trong `src/admin/` nếu cần).

@@ -138,73 +138,158 @@ export default async function play(stage, ctx) {
   const thanks = h('p', { class: 's8-thanks', 'aria-live': 'polite' }, shine(settings.finalThanks));
   stage.append(ask, thanks);
 
-  let scale = 1, freed = false, lock = 0, done = false;
+  // Mỗi lần né: đổi sang câu năn nỉ kế tiếp + một trò nghịch khác nhau; hết câu thì nút đầu hàng.
+  const lines = String(settings.finalNoLines || '').split('\n').map((s) => s.trim()).filter(Boolean);
+  const TRICKS = ['jump', 'shrink', 'spin', 'shake', 'teleport', 'clones', 'flip'];
+  const st = { x: 0, y: 0, s: 1, spins: 0, flip: false };
+  const decoys = new Set();
+  let scale = 1, freed = false, lock = 0, done = false, tries = 0, surrendered = false, surrenderAt = 0;
+
+  const place = (instant = false) => {
+    if (instant) no.style.transition = 'none';
+    no.style.transform = `translate(${st.x}px, ${st.y}px) rotate(${st.spins * 360 + (st.flip ? 180 : 0)}deg) scale(${st.s})`;
+    if (instant) { void no.offsetWidth; no.style.transition = ''; }
+  };
+
+  // Chỗ trống ngẫu nhiên xa ngón tay nhất, không đè nút Đồng ý.
+  function freeSpot(px, py, w, hgt) {
+    const sr = stage.getBoundingClientRect();
+    const W = sr.width, H = sr.height;
+    const yr = yes.getBoundingClientRect();
+    const ycx = (yr.left + yr.right) / 2 - sr.left, ycy = (yr.top + yr.bottom) / 2 - sr.top;
+    const yhw = yr.width / 2 + 18, yhh = yr.height / 2 + 18;
+    const pX = px - sr.left, pY = py - sr.top;
+    const top = 64, bottom = 24, m = 14;
+    let best = [m, top], bestD = -1;
+    for (let i = 0; i < 40; i++) {
+      const x = m + Math.random() * Math.max(0, W - w - 2 * m);
+      const y = top + Math.random() * Math.max(0, H - hgt - top - bottom);
+      if (x < ycx + yhw && x + w > ycx - yhw && y < ycy + yhh && y + hgt > ycy - yhh) continue;
+      const d = Math.hypot(x + w / 2 - pX, y + hgt / 2 - pY);
+      if (d > bestD) { best = [x, y]; bestD = d; }
+      if (d > 140) break;
+    }
+    return best;
+  }
+
+  function moveAway(px, py) {
+    [st.x, st.y] = freeSpot(px, py, no.offsetWidth, no.offsetHeight);
+  }
+
+  // Phân thân: vài nút "Không" giả, chạm vào thì vỡ tan, tự mờ sau ~2.6s.
+  function spawnDecoys(px, py) {
+    for (let i = 0; i < 3; i++) {
+      const d = h('button', { class: 's8-no is-free s8-decoy', type: 'button', 'aria-hidden': 'true', tabindex: '-1' }, settings.finalNo);
+      stage.append(d);
+      const [x, y] = freeSpot(px, py, d.offsetWidth, d.offsetHeight);
+      d.style.transform = `translate(${x}px, ${y}px) scale(0.3)`;
+      void d.offsetWidth;
+      d.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+      const pop = () => {
+        if (!decoys.delete(d)) return;
+        d.classList.add('s8-decoy--pop');
+        setTimeout(() => d.remove(), 350);
+      };
+      d.addEventListener('pointerdown', pop);
+      setTimeout(pop, 2600 + i * 250);
+      decoys.add(d);
+    }
+  }
+
+  function surrender() {
+    surrendered = true;
+    surrenderAt = performance.now();
+    st.s = 1;
+    st.flip = false;
+    no.textContent = settings.finalNoSurrender;
+    no.classList.add('s8-no--yes');
+    // Bay về ngay dưới nút Đồng ý cho dễ thấy.
+    const sr = stage.getBoundingClientRect();
+    const yr = yes.getBoundingClientRect();
+    st.x = Math.max(14, Math.min((yr.left + yr.right) / 2 - sr.left - no.offsetWidth / 2, sr.width - no.offsetWidth - 14));
+    st.y = Math.min(yr.bottom - sr.top + 22, sr.height - no.offsetHeight - 24);
+    place();
+  }
 
   function dodge(px, py) {
     const now = performance.now();
-    if (done || now < lock) return;
-    lock = now + 220;
+    if (done || surrendered || now < lock) return;
+    lock = now + 260;
 
-    const sr = stage.getBoundingClientRect();
     if (!freed) {
       freed = true;
+      const sr = stage.getBoundingClientRect();
       const r = no.getBoundingClientRect();
       no.classList.add('is-free');
-      no.style.transition = 'none';
-      no.style.transform = `translate(${r.left - sr.left}px, ${r.top - sr.top}px)`;
+      st.x = r.left - sr.left;
+      st.y = r.top - sr.top;
+      place(true);
       stage.append(no);
-      void no.offsetWidth;
-      no.style.transition = '';
     }
 
     scale = Math.min(scale + 0.13, 1.9);
     yes.style.transform = `scale(${scale})`;
 
-    const W = sr.width, H = sr.height, nw = no.offsetWidth, nh = no.offsetHeight;
-    const yr = yes.getBoundingClientRect();
-    const ycx = (yr.left + yr.right) / 2 - sr.left, ycy = (yr.top + yr.bottom) / 2 - sr.top;
-    const yhw = (yes.offsetWidth * scale) / 2 + 18, yhh = (yes.offsetHeight * scale) / 2 + 18;
-    const pX = px - sr.left, pY = py - sr.top;
-    const top = 64, bottom = 24, m = 14;
+    tries++;
+    if (tries > lines.length) return surrender();
+    no.textContent = lines[tries - 1];
 
-    let best = null, bestD = -1;
-    for (let i = 0; i < 40; i++) {
-      const x = m + Math.random() * Math.max(0, W - nw - 2 * m);
-      const y = top + Math.random() * Math.max(0, H - nh - top - bottom);
-      const hitYes = x < ycx + yhw && x + nw > ycx - yhw && y < ycy + yhh && y + nh > ycy - yhh;
-      if (hitYes) continue;
-      const d = Math.hypot(x + nw / 2 - pX, y + nh / 2 - pY);
-      if (d > bestD) { best = [x, y]; bestD = d; }
-      if (d > 140) break;
+    const trick = rm ? 'jump' : TRICKS[(tries - 1) % TRICKS.length];
+    no.classList.remove('s8-no--shake');
+    if (trick === 'shake') {
+      void no.offsetWidth;
+      no.classList.add('s8-no--shake');
+      return place();
     }
-    if (best) no.style.transform = `translate(${best[0]}px, ${best[1]}px)`;
+    if (trick === 'teleport') {
+      no.classList.add('s8-no--vanish');
+      setTimeout(() => {
+        if (done) return;
+        moveAway(px, py);
+        place(true);
+        no.classList.remove('s8-no--vanish');
+      }, 260);
+      return;
+    }
+    if (trick === 'shrink') st.s = Math.max(0.6, st.s * 0.82);
+    if (trick === 'spin') st.spins++;
+    if (trick === 'flip') st.flip = !st.flip;
+    if (trick === 'clones') spawnDecoys(px, py);
+    moveAway(px, py);
+    place();
   }
 
   no.addEventListener('pointerdown', (e) => {
-    if (e.pointerType === 'mouse') return;
+    if (e.pointerType === 'mouse' || surrendered) return;
     e.preventDefault();
     dodge(e.clientX, e.clientY);
   });
   no.addEventListener('click', (e) => {
     e.preventDefault();
+    // Bỏ qua cú "click" sinh ra từ chính lần chạm vừa làm nút đầu hàng.
+    if (surrendered) return performance.now() - surrenderAt > 450 && accept();
     const r = no.getBoundingClientRect();
     dodge((r.left + r.right) / 2, (r.top + r.bottom) / 2);
   });
   stage.addEventListener('pointermove', (e) => {
-    if (e.pointerType !== 'mouse' || done) return;
+    if (e.pointerType !== 'mouse' || done || surrendered) return;
     const r = no.getBoundingClientRect();
     const dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right);
     const dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom);
     if (Math.hypot(dx, dy) < 40) dodge(e.clientX, e.clientY);
   });
 
-  yes.addEventListener('click', () => {
+  function accept() {
+    if (done) return;
     done = true;
     ask.classList.add('is-gone');
     no.classList.add('is-gone');
+    decoys.forEach((d) => d.remove());
+    decoys.clear();
     thanks.classList.add('is-shown');
     if (!rm) fireworks(stage);
-  }, { once: true });
+  }
+  yes.addEventListener('click', accept);
 
   // Cảnh cuối: không bao giờ resolve.
   return new Promise(() => {});

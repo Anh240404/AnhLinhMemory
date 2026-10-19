@@ -28,6 +28,19 @@ export const DEFAULT_SETTINGS = {
   finalQuestion: 'Tối nay em đi chơi với anh nhé?',
   finalYes: 'Đồng ý',
   finalNo: 'Không',
+  // Mỗi lần bấm "Không" nút đổi sang câu kế tiếp (mỗi dòng 1 câu); hết câu thì nút đầu hàng.
+  finalNoLines: [
+    'Chắc chưa? 🥺',
+    'Nghĩ lại đi mà',
+    'Bấm nhầm rồi đúng không?',
+    'Anh buồn đó 😢',
+    'Không được đâu nha 😤',
+    'Nút này hỏng rồi 🙈',
+    'Em nỡ lòng nào…',
+    'Thôi mà, đồng ý đi 💕',
+    'Lần cuối đó nha!',
+  ].join('\n'),
+  finalNoSurrender: 'Thôi được, đồng ý 💖',
   finalThanks: 'Yêu em nhiều lắm! 💖',
 
   musicUrl: '',

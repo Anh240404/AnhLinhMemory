@@ -23,6 +23,8 @@ export const LABELS = {
   finalQuestion: ['Câu hỏi cuối'],
   finalYes: ['Nút đồng ý'],
   finalNo: ['Nút từ chối (sẽ chạy trốn)'],
+  finalNoLines: ['Câu năn nỉ khi bấm "Không"', 'Mỗi dòng 1 câu, bấm Không lần nào thì nút đổi sang câu kế tiếp. Hết câu thì nút đầu hàng.'],
+  finalNoSurrender: ['Chữ khi nút "Không" đầu hàng', 'Bấm vào sẽ tính là Đồng ý'],
   finalThanks: ['Lời cảm ơn khi bấm đồng ý'],
 };
 
@@ -32,7 +34,7 @@ const GROUPS = [
   ['Thiệp & đồng hồ', ['cardTitleLeft', 'cardTitleRight', 'cardSubtitle', 'counterLabel']],
   ['Thiên hà · Quả cầu · Video · Chỉ số', ['galaxyCaption', 'sphereCaption', 'reelTitle', 'statsTitle']],
   ['Lá thư', ['letterTitle', 'letterBody', 'signature']],
-  ['Câu hỏi cuối', ['finalQuestion', 'finalYes', 'finalNo', 'finalThanks']],
+  ['Câu hỏi cuối', ['finalQuestion', 'finalYes', 'finalNo', 'finalNoLines', 'finalNoSurrender', 'finalThanks']],
 ];
 
 /** Đọc settings.data hiện có trên server. */
@@ -70,7 +72,7 @@ export async function renderInfo(panel) {
     const [label, hint] = LABELS[key] || [key];
     const id = `qt-f-${key}`;
     let input;
-    if (key === 'letterBody') input = h('textarea.qt-input', { id, rows: 8 });
+    if (key === 'letterBody' || key === 'finalNoLines') input = h('textarea.qt-input', { id, rows: key === 'letterBody' ? 8 : 9 });
     else if (key === 'startDate') input = h('input.qt-input', { id, type: 'date' });
     else input = h('input.qt-input', { id, type: 'text' });
     input.value = values[key] ?? '';
