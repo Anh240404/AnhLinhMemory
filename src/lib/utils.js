@@ -20,12 +20,21 @@ export function h(tag, attrs = {}, ...children) {
   return el;
 }
 
-/** Hiện nút "Tiếp ›" ở đáy màn hình, resolve khi bấm rồi tự gỡ nút. */
+/**
+ * Hiện nút "Tiếp ›" (kèm "‹ Quay lại" nếu main.js cho phép qua stage.dataset.canBack) ở đáy màn hình.
+ * Resolve khi bấm nút nào cũng được; hướng đi ghi vào stage.dataset.nav ('next' | 'back') để main.js đọc.
+ */
 export function nextButton(stage, label = 'Tiếp ›') {
   return new Promise((resolve) => {
-    const btn = h('button', { class: 'next-btn', type: 'button' }, label);
-    btn.addEventListener('click', () => { btn.remove(); resolve(); }, { once: true });
-    stage.append(btn);
+    const go = (dir) => () => {
+      stage.dataset.nav = dir;
+      bar.remove();
+      resolve();
+    };
+    const bar = h('div', { class: 'nav-bar' },
+      stage.dataset.canBack ? h('button', { class: 'next-btn next-btn--back', type: 'button', onclick: go('back') }, '‹ Quay lại') : null,
+      h('button', { class: 'next-btn', type: 'button', onclick: go('next') }, label));
+    stage.append(bar);
   });
 }
 

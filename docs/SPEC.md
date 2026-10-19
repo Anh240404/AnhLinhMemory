@@ -5,6 +5,9 @@ Tông màu: nền đen tím (`--bg-0`, `--bg-1`), điểm nhấn tím phát sán
 Font: `--font-script` (Dancing Script) cho tiêu đề lãng mạn, `--font-serif` cho câu trích, `--font-sans` cho chữ thường.
 Token màu/font ở `src/styles/base.css`. Nền sao đã có sẵn (canvas `#sky` phía sau mọi scene) — scene nền trong suốt.
 
+Điều hướng: `nextButton` hiện "‹ Quay lại" + "Tiếp ›"; quay lại bỏ qua 01-intro, 02-bloom (cảnh tự chạy) — do main.js xử lý,
+scene không cần làm gì thêm ngoài dọn dẹp như khi đi tiếp.
+
 Hai vai trò:
 - **Khách** `/` — không đăng nhập, chỉ xem 8 cảnh dưới đây theo thứ tự.
 - **Admin** `/admin` — đăng nhập Supabase Auth (email + mật khẩu), sửa mọi nội dung.

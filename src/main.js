@@ -33,9 +33,20 @@ async function run() {
   // ?scene=4 để nhảy thẳng tới cảnh thứ 4 khi phát triển.
   const startAt = Math.max(0, (Number(new URLSearchParams(location.search).get('scene')) || 1) - 1);
 
-  for (const play of scenes.slice(startAt)) {
+  // Cảnh tự chạy (mở quà, hoa nở) bị bỏ qua khi bấm "Quay lại".
+  const prevOf = (i) => {
+    let p = i - 1;
+    while (p >= 0 && (scenes[p] === intro || scenes[p] === bloom)) p--;
+    return p;
+  };
+
+  let i = Math.min(startAt, scenes.length - 1);
+  while (i < scenes.length) {
+    const play = scenes[i];
+    const prev = prevOf(i);
     const stage = document.createElement('section');
     stage.className = 'stage';
+    if (prev >= 0) stage.dataset.canBack = '1';
     root.append(stage);
     try {
       await play(stage, ctx);
@@ -46,6 +57,7 @@ async function run() {
     stage.classList.add('stage--out');
     await wait(700);
     stage.remove();
+    i = stage.dataset.nav === 'back' && prev >= 0 ? prev : i + 1;
   }
 }
 
