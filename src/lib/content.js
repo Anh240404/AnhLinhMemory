@@ -17,6 +17,7 @@ export const DEFAULT_SETTINGS = {
 
   galaxyCaption: 'Bông hoa này nhỏ thôi, nhưng không đẹp bằng em',
   sphereCaption: 'Kế bên anh, nơi này có em',
+  reelTitle: 'Những thước phim của mình',
   statsTitle: 'Chuyện của hai đứa mình',
 
   letterTitle: 'Gửi em!',
@@ -71,37 +72,80 @@ export const DEMO_STATS = [
   { icon: '💬', value: '∞', label: 'lần anh nhớ em' },
 ].map((s, i) => ({ id: `demo-s${i}`, sort_order: i, ...s }));
 
+// Ảnh bìa dự phòng cho video không cắt được ảnh bìa lúc tải lên.
+export const VIDEO_POSTER = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b1d5e"/><stop offset="1" stop-color="#7a2d5c"/></linearGradient></defs>
+<rect width="600" height="800" fill="url(#g)"/>
+<circle cx="300" cy="400" r="92" fill="rgba(255,255,255,0.18)" stroke="#fff" stroke-width="6"/>
+<path d="M272 350 L352 400 L272 450 Z" fill="#fff"/>
+</svg>`)}`;
+
+// Video thử, chỉ có khi chạy dev (file trong thư mục dev/, không lên bản build).
+const DEV_VIDEOS = import.meta.env.DEV
+  ? [
+      { id: 'demo-v0', kind: 'video', url: '/dev/test-portrait.mp4', poster: '/dev/test-portrait.jpg', caption: 'Video dọc (thử)' },
+      { id: 'demo-v1', kind: 'video', url: '/dev/test-landscape.mp4', poster: null, caption: 'Video ngang, không có ảnh bìa (thử)' },
+    ]
+  : [];
+
 /**
- * @typedef {{ id:string, url:string, caption:string, sort_order:number }} Photo
+ * Hàng trong bảng photos → phần tử dùng cho scene. `url` LUÔN là ảnh (với video là ảnh bìa),
+ * nên mọi cảnh dùng ảnh chạy được ngay; video có thêm `video` = link file video.
+ */
+function toMedia(r) {
+  const base = { ...r, caption: r.caption ?? '' };
+  return r.kind === 'video' ? { ...base, url: r.poster || VIDEO_POSTER, video: r.url } : base;
+}
+
+/**
+ * @typedef {{ id:string, url:string, caption:string, sort_order:number, video?:string }} Photo
  * @typedef {{ id:string, text:string, sort_order:number }} Message
  * @typedef {{ id:string, icon:string, value:string, label:string, sort_order:number }} Stat
- * @typedef {{ settings: typeof DEFAULT_SETTINGS, photos: Photo[], messages: Message[], stats: Stat[], demo: boolean }} Content
+ * @typedef {{ settings: typeof DEFAULT_SETTINGS, photos: Photo[], videos: Photo[], messages: Message[], stats: Stat[], demo: boolean }} Content
  */
 
-/** @returns {Promise<Content>} photos/messages luôn có ít nhất 1 phần tử; stats có thể rỗng. */
+function withVideos(c) {
+  return { ...c, videos: c.photos.filter((p) => p.video) };
+}
+
+/**
+ * @returns {Promise<Content>} photos/messages luôn có ít nhất 1 phần tử; stats, videos có thể rỗng.
+ * Khi chạy dev, thêm ?mock vào URL để dùng dữ liệu mẫu (kèm 2 video thử) thay cho Supabase.
+ */
 export async function fetchContent() {
-  if (!supabase) {
-    return { settings: { ...DEFAULT_SETTINGS }, photos: DEMO_PHOTOS, messages: DEMO_MESSAGES, stats: DEMO_STATS, demo: true };
+  const mock = import.meta.env.DEV && new URLSearchParams(location.search).has('mock');
+  if (!supabase || mock) {
+    const photos = [...DEMO_PHOTOS];
+    photos.splice(2, 0, DEV_VIDEOS[0]);
+    photos.splice(5, 0, DEV_VIDEOS[1]);
+    return withVideos({
+      settings: { ...DEFAULT_SETTINGS },
+      photos: photos.filter(Boolean).map(toMedia),
+      messages: DEMO_MESSAGES,
+      stats: DEMO_STATS,
+      demo: true,
+    });
   }
   const order = { ascending: true };
   const [s, p, m, st] = await Promise.all([
     supabase.from('settings').select('data').eq('id', 1).maybeSingle(),
-    supabase.from('photos').select('id,url,caption,sort_order').order('sort_order', order).order('created_at', order),
+    // select('*') để vẫn chạy được cả khi database chưa chạy 002-video.sql (chưa có cột kind/poster).
+    supabase.from('photos').select('*').order('sort_order', order).order('created_at', order),
     supabase.from('messages').select('id,text,sort_order').order('sort_order', order).order('created_at', order),
     supabase.from('stats').select('id,icon,value,label,sort_order').order('sort_order', order).order('created_at', order),
   ]);
   for (const r of [s, p, m, st]) if (r.error) console.error(r.error);
 
-  return {
+  return withVideos({
     // Ô admin để trống → dùng giá trị mặc định (riêng musicUrl rỗng nghĩa là không có nhạc).
     settings: {
       ...DEFAULT_SETTINGS,
       ...Object.fromEntries(Object.entries(s.data?.data ?? {}).filter(([k, v]) => k === 'musicUrl' || String(v ?? '').trim() !== '')),
     },
-    photos: p.data?.length ? p.data : DEMO_PHOTOS,
+    photos: (p.data?.length ? p.data : DEMO_PHOTOS).map(toMedia),
     messages: m.data?.length ? m.data : DEMO_MESSAGES,
-    // Chỉ số không dùng mẫu: chưa nhập trong admin thì cảnh 6 chỉ hiện thẻ số ngày bên nhau.
+    // Chỉ số không dùng mẫu: chưa nhập trong admin thì cảnh chỉ số chỉ hiện thẻ số ngày bên nhau.
     stats: st.data ?? [],
     demo: false,
-  };
+  });
 }

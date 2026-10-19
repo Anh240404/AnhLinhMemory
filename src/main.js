@@ -12,8 +12,10 @@ import sphere from './scenes/05-sphere.js';
 import stats from './scenes/06-stats.js';
 import letter from './scenes/07-letter.js';
 import finale from './scenes/08-finale.js';
+import reel from './scenes/09-reel.js';
 
-const SCENES = [intro, bloom, calendar, galaxy, sphere, stats, letter, finale];
+// Thứ tự cảnh do mảng này quyết định (số trong tên file chỉ là mã cảnh).
+const SCENES = [intro, bloom, calendar, galaxy, sphere, reel, stats, letter, finale];
 
 async function run() {
   startStarfield(document.getElementById('sky'));
@@ -25,10 +27,13 @@ async function run() {
 
   root.querySelector('.loading')?.remove();
 
-  // ?scene=4 để nhảy thẳng tới scene 4 khi phát triển.
+  // Chưa có video thì bỏ cảnh thước phim.
+  const scenes = SCENES.filter((s) => s !== reel || content.videos.length);
+
+  // ?scene=4 để nhảy thẳng tới cảnh thứ 4 khi phát triển.
   const startAt = Math.max(0, (Number(new URLSearchParams(location.search).get('scene')) || 1) - 1);
 
-  for (const play of SCENES.slice(startAt)) {
+  for (const play of scenes.slice(startAt)) {
     const stage = document.createElement('section');
     stage.className = 'stage';
     root.append(stage);

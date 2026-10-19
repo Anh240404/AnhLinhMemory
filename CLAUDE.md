@@ -22,6 +22,8 @@ Web tặng người yêu dịp 20-10, deploy Vercel, dữ liệu Supabase. Đọ
 - Mọi class CSS phải có tiền tố riêng của scene (ví dụ `.s3-…`). Không style thẻ trần (`div`, `img`, …) ngoài tiền tố.
 - Mọi chữ hiển thị lấy từ `ctx.content.settings.*` hoặc dữ liệu; không hard-code tên người.
 - Phải chạy được với 1 ảnh và với 60 ảnh; ảnh lỗi không được làm vỡ bố cục.
+- Video: mỗi cảnh tối đa 1 thẻ `<video>` đang phát; luôn `playsinline`; rời cảnh phải pause + gỡ src.
+- Tên class tuyệt đối KHÔNG bắt đầu bằng `ad-`/`ads-`/`banner`/`sponsor` (bộ chặn quảng cáo sẽ ẩn phần tử).
 
 ## Mobile-first (người xem dùng điện thoại)
 - Thiết kế cho 360×640 → 430×932 trước, rồi mới desktop. Dùng `dvh`, `min()`, `clamp()`, `env(safe-area-inset-*)`.

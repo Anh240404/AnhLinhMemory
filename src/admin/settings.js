@@ -15,6 +15,7 @@ export const LABELS = {
   counterLabel: ['Chữ trước đồng hồ đếm ngày'],
   galaxyCaption: ['Câu dưới màn thiên hà'],
   sphereCaption: ['Câu dưới quả cầu ảnh'],
+  reelTitle: ['Tiêu đề cảnh video', 'Chỉ hiện khi đã tải video lên'],
   statsTitle: ['Tiêu đề màn chỉ số'],
   letterTitle: ['Lời mở đầu lá thư'],
   letterBody: ['Nội dung lá thư'],
@@ -29,7 +30,7 @@ const GROUPS = [
   ['Hai bạn', ['herName', 'hisName', 'startDate']],
   ['Màn mở quà', ['introTitle', 'introSubtitle', 'introButton']],
   ['Thiệp & đồng hồ', ['cardTitleLeft', 'cardTitleRight', 'cardSubtitle', 'counterLabel']],
-  ['Thiên hà · Quả cầu · Chỉ số', ['galaxyCaption', 'sphereCaption', 'statsTitle']],
+  ['Thiên hà · Quả cầu · Video · Chỉ số', ['galaxyCaption', 'sphereCaption', 'reelTitle', 'statsTitle']],
   ['Lá thư', ['letterTitle', 'letterBody', 'signature']],
   ['Câu hỏi cuối', ['finalQuestion', 'finalYes', 'finalNo', 'finalThanks']],
 ];

@@ -14,6 +14,7 @@ export function createMusic(url) {
   const player = yt ? youtubePlayer(yt, setOn) : audioPlayer(url, setOn);
   btn.addEventListener('click', () => player.toggle());
 
+  let suspended = false;
   return {
     play() {
       if (!url) return;
@@ -21,6 +22,18 @@ export function createMusic(url) {
       player.play();
     },
     pause: () => player.pause(),
+    // Video phát có tiếng → suspend() tạm dừng nhạc nền; resume() chỉ phát lại nếu trước đó đang phát.
+    // Nên gọi resume() trong sự kiện chạm/bấm để iPhone cho phép phát.
+    suspend() {
+      if (!player.isOn()) return;
+      suspended = true;
+      player.pause();
+    },
+    resume() {
+      if (!suspended) return;
+      suspended = false;
+      player.play();
+    },
   };
 }
 
@@ -32,7 +45,12 @@ function audioPlayer(url, setOn) {
   audio.addEventListener('play', () => setOn(true));
   audio.addEventListener('pause', () => setOn(false));
   const play = () => audio.play().catch(() => {});
-  return { play, pause: () => audio.pause(), toggle: () => (audio.paused ? play() : audio.pause()) };
+  return {
+    play,
+    pause: () => audio.pause(),
+    toggle: () => (audio.paused ? play() : audio.pause()),
+    isOn: () => !audio.paused,
+  };
 }
 
 // Trình phát YouTube ẩn (không dùng display:none vì một số trình duyệt sẽ không phát).
@@ -90,5 +108,5 @@ function youtubePlayer({ id, start }, setOn) {
     setOn(false);
     if (ready) player.pauseVideo();
   }
-  return { play, pause, toggle: () => (want ? pause() : play()) };
+  return { play, pause, toggle: () => (want ? pause() : play()), isOn: () => want };
 }

@@ -17,6 +17,10 @@ create table if not exists public.photos (
   sort_order int not null default 0,
   created_at timestamptz not null default now()
 );
+-- Bản có video (an toàn khi chạy lại; giống supabase/002-video.sql).
+-- kind = 'video' thì url là file video, poster là ảnh bìa cắt từ video.
+alter table public.photos add column if not exists kind text not null default 'image' check (kind in ('image', 'video'));
+alter table public.photos add column if not exists poster text;
 
 create table if not exists public.messages (
   id uuid primary key default gen_random_uuid(),

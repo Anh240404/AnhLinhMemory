@@ -132,3 +132,57 @@
   from { opacity: 0; transform: translate(-50%, 14px); }
   to { opacity: 1; transform: translate(-50%, 0); }
 }
+
+/* Video: huy hiệu ▶ trên ảnh bìa + lightbox phát video. */
+.s4-play {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 3px);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding-left: 2px;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  background: rgba(10, 4, 20, 0.55);
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  line-height: 1;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(244, 114, 182, 0.8);
+  pointer-events: none;
+}
+
+.s4-lb-fig { position: relative; }
+
+.s4-lb-video,
+.s4-lb-x { display: none; }
+
+.s4-lb--video .s4-lb-img { display: none; }
+
+.s4-lb--video .s4-lb-video {
+  display: block;
+  width: calc(min(88vw, 560px) - 16px);
+  height: min(66dvh, 620px);
+  object-fit: contain;
+  background: #000;
+}
+
+.s4-lb--video .s4-lb-x {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+  background: rgba(10, 4, 20, 0.6);
+  font-size: 1.1rem;
+  line-height: 1;
+  color: #fff;
+}

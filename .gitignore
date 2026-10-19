@@ -6,3 +6,6 @@ dist
 
 # Video tham khảo, không thuộc web
 *.mp4
+
+# Video/ảnh thử chỉ dùng khi chạy dev (?mock)
+dev/

@@ -423,6 +423,49 @@ textarea.qt-input {
 .qt-photo-img--broken {
   opacity: 0;
 }
+.qt-photo-thumb--video {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.qt-photo-thumb--video:focus-visible {
+  outline: 3px solid rgba(232, 80, 138, 0.45);
+  outline-offset: 2px;
+}
+.qt-photo-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+  pointer-events: none;
+}
+.qt-play-badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  display: grid;
+  place-items: center;
+  padding-left: 4px;
+  font-size: 1.2rem;
+  color: #fff;
+  background: rgba(58, 36, 48, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.qt-photo-thumb--playing .qt-play-badge {
+  opacity: 0;
+}
 .qt-photo-no {
   position: absolute;
   top: 6px;

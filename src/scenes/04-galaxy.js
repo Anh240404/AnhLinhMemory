@@ -58,7 +58,9 @@ export default async function play(stage, ctx) {
   const layer = h('div', { class: 's4-layer' });
   const lbImg = h('img', { class: 's4-lb-img', alt: '' });
   const lbCap = h('p', { class: 's4-lb-cap' });
-  const lightbox = h('div', { class: 's4-lb' }, h('figure', { class: 's4-lb-fig' }, lbImg, lbCap));
+  const lbVideo = h('video', { class: 's4-lb-video', controls: true, playsinline: true, autoplay: true, preload: 'none' });
+  const lbClose = h('button', { class: 's4-lb-x', type: 'button', 'aria-label': 'Đóng video' }, '✕');
+  const lightbox = h('div', { class: 's4-lb' }, h('figure', { class: 's4-lb-fig' }, lbImg, lbVideo, lbClose, lbCap));
   const caption = h('p', { class: 's4-caption' }, s.galaxyCaption);
   stage.append(canvas, layer, caption, lightbox);
 
@@ -87,14 +89,46 @@ export default async function play(stage, ctx) {
   const photoList = fill(photos, Math.min(16, Math.max(photos.length, 10)));
   const msgList = fill(messages, Math.min(12, Math.max(messages.length, 8)));
 
+  let videoOn = false;
   const openPhoto = (p) => {
-    lbImg.src = p.url;
     lbCap.textContent = p.caption || '';
     lbCap.hidden = !p.caption;
+    if (p.video) {
+      videoOn = true;
+      ctx.music.suspend();
+      lbVideo.poster = p.url;
+      lbVideo.muted = false;
+      lbVideo.src = p.video;
+      lbVideo.play().catch((err) => {
+        // Trình duyệt chặn phát có tiếng → phát tắt tiếng, người xem tự bật bằng thanh điều khiển.
+        if (err?.name !== 'NotAllowedError' || !videoOn) return;
+        lbVideo.muted = true;
+        lbVideo.play().catch(() => {});
+      });
+    } else {
+      lbImg.src = p.url;
+    }
+    lightbox.classList.toggle('s4-lb--video', !!p.video);
     lightbox.classList.add('s4-lb--on');
   };
-  const closePhoto = () => lightbox.classList.remove('s4-lb--on');
-  lightbox.addEventListener('click', closePhoto);
+  const closeVideo = () => {
+    if (!videoOn) return;
+    videoOn = false;
+    lbVideo.pause();
+    lbVideo.removeAttribute('src');
+    lbVideo.load();
+    ctx.music.resume();
+  };
+  const closePhoto = () => {
+    closeVideo();
+    lightbox.classList.remove('s4-lb--on');
+  };
+  const onLightboxClick = (e) => {
+    // Chạm vào video (thanh điều khiển) không đóng lightbox.
+    if (videoOn && e.target === lbVideo) return;
+    closePhoto();
+  };
+  lightbox.addEventListener('click', onLightboxClick);
 
   const items = [];
   const addItem = (el) => {
@@ -113,7 +147,8 @@ export default async function play(stage, ctx) {
   photoList.forEach((p) => {
     const img = h('img', { class: 's4-photo-img', src: p.url, alt: '', loading: 'eager', decoding: 'async', draggable: 'false' });
     img.addEventListener('error', () => img.classList.add('s4-photo-img--err'), { once: true });
-    addItem(h('button', { class: 's4-photo', type: 'button', 'aria-label': p.caption || 'Ảnh', onclick: () => openPhoto(p) }, img));
+    const badge = p.video ? h('span', { class: 's4-play', 'aria-hidden': 'true' }, '▶') : null;
+    addItem(h('button', { class: 's4-photo', type: 'button', 'aria-label': p.caption || (p.video ? 'Video' : 'Ảnh'), onclick: () => openPhoto(p) }, img, badge));
   });
   msgList.forEach((m) => addItem(h('span', { class: 's4-msg' }, m.text)));
 
@@ -254,5 +289,6 @@ export default async function play(stage, ctx) {
 
   stop();
   window.removeEventListener('resize', onResize);
-  lightbox.removeEventListener('click', closePhoto);
+  lightbox.removeEventListener('click', onLightboxClick);
+  closeVideo();
 }

@@ -11,7 +11,7 @@ root.classList.add('qt-root');
 
 const TABS = [
   { id: 'info', label: 'Thông tin', icon: '✎', render: renderInfo },
-  { id: 'photos', label: 'Ảnh', icon: '▣', render: renderPhotos },
+  { id: 'photos', label: 'Ảnh/Video', icon: '▣', render: renderPhotos },
   { id: 'messages', label: 'Lời nhắn', icon: '✉', render: (p) => renderList(p, 'messages') },
   { id: 'stats', label: 'Chỉ số', icon: '♥', render: (p) => renderList(p, 'stats') },
   { id: 'music', label: 'Nhạc', icon: '♫', render: renderMusic },
