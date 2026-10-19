@@ -3,8 +3,8 @@ import { h, toast, failed, busy, uuid, pathFromPublicUrl } from './ui.js';
 import { loadSettingsData, saveSettings } from './settings.js';
 import { parseYouTube } from '../lib/youtube.js';
 
-const MAX_BYTES = 15 * 1024 * 1024;
-const TYPES = { mp3: 'audio/mpeg', m4a: 'audio/mp4' };
+const MAX_BYTES = 20 * 1024 * 1024;
+const TYPES = { mp3: 'audio/mpeg', m4a: 'audio/mp4', aac: 'audio/aac', wav: 'audio/wav', ogg: 'audio/ogg' };
 
 export async function renderMusic(panel) {
   const storage = supabase.storage.from(MEDIA_BUCKET);
@@ -13,7 +13,7 @@ export async function renderMusic(panel) {
   if (data === null) return panel.replaceChildren(h('p.ad-muted', {}, 'Không tải được dữ liệu.'));
   let musicUrl = data.musicUrl || '';
 
-  const fileInput = h('input.ad-visually-hidden', { type: 'file', accept: '.mp3,.m4a,audio/mpeg,audio/mp4,audio/x-m4a', id: 'ad-music-file' });
+  const fileInput = h('input.ad-visually-hidden', { type: 'file', accept: '.mp3,.m4a,.aac,.wav,.ogg,audio/*', id: 'ad-music-file' });
   const pickBtn = h('label.ad-btn.ad-btn--primary.ad-btn--block', { for: 'ad-music-file' });
   const status = h('p.ad-muted');
   const player = h('audio.ad-audio', { controls: true, preload: 'none' });
@@ -40,7 +40,7 @@ export async function renderMusic(panel) {
 
   function render() {
     const yt = parseYouTube(musicUrl);
-    pickBtn.textContent = musicUrl && !yt ? '♫ Thay bằng file khác' : '♫ Chọn file nhạc (mp3/m4a)';
+    pickBtn.textContent = musicUrl && !yt ? '♫ Thay bằng file khác' : '♫ Chọn file nhạc từ máy';
     nowBox.hidden = !musicUrl;
     player.hidden = !!yt || !musicUrl;
     ytFrame.hidden = !yt;
@@ -66,8 +66,8 @@ export async function renderMusic(panel) {
     fileInput.value = '';
     if (!file) return;
     const ext = (file.name.split('.').pop() || '').toLowerCase();
-    if (!TYPES[ext]) return toast('Chỉ nhận file .mp3 hoặc .m4a', 'err');
-    if (file.size > MAX_BYTES) return toast('File quá lớn (tối đa 15MB)', 'err');
+    if (!TYPES[ext]) return toast('Chỉ nhận file .mp3, .m4a, .aac, .wav, .ogg', 'err');
+    if (file.size > MAX_BYTES) return toast('File quá lớn (tối đa 20MB)', 'err');
 
     fileInput.disabled = true;
     pickBtn.classList.add('ad-btn--disabled');
@@ -114,7 +114,7 @@ export async function renderMusic(panel) {
       ytBtn,
       h('small.ad-hint', {}, 'Muốn bắt đầu từ giây nào thì thêm &t=45 vào cuối link. Nếu khung nghe thử bên dưới báo "không phát được", video đó chặn nhúng — chọn video khác (bản lyric/audio thường được).'),
     ),
-    h('div.ad-card', {}, h('h3.ad-card-title', {}, 'Cách 2: Tải file nhạc'), fileInput, pickBtn, h('small.ad-hint', {}, 'Nhạc nền phát khi người ấy bấm mở quà. Tối đa 15MB.'), status),
+    h('div.ad-card', {}, h('h3.ad-card-title', {}, 'Cách 2: Tải file nhạc'), fileInput, pickBtn, h('small.ad-hint', {}, 'Nhận mp3, m4a, aac, wav, ogg — tối đa 20MB. Tải file mới sẽ thay cho link YouTube (và ngược lại).'), status),
     nowBox,
   );
   render();
