@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+.env.local
+.vercel
+
+# Video tham khảo, không thuộc web
+*.mp4
