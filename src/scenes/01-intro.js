@@ -1,5 +1,5 @@
 import './01-intro.css';
-import { h, wait, reducedMotion } from '../lib/utils.js';
+import { h, shine, wait, reducedMotion } from '../lib/utils.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -52,7 +52,7 @@ export default async function play(stage, ctx) {
     h('div', { class: 's1-wrap' },
       star,
       h('div', { class: 's1-text' },
-        h('h1', { class: 's1-title' }, s.introTitle),
+        h('h1', { class: 's1-title' }, shine(s.introTitle)),
         h('p', { class: 's1-sub' }, s.introSubtitle),
         btn)),
     flash);

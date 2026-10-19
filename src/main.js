@@ -2,6 +2,7 @@ import './styles/base.css';
 import { fetchContent } from './lib/content.js';
 import { startStarfield } from './lib/starfield.js';
 import { createMusic } from './lib/music.js';
+import { startSparkles } from './lib/sparkle.js';
 import { wait } from './lib/utils.js';
 
 import intro from './scenes/01-intro.js';
@@ -19,6 +20,7 @@ const SCENES = [intro, bloom, calendar, galaxy, sphere, reel, stats, letter, fin
 
 async function run() {
   startStarfield(document.getElementById('sky'));
+  const sparkles = startSparkles();
   const root = document.getElementById('app');
 
   const content = await fetchContent();
@@ -54,6 +56,7 @@ async function run() {
       console.error(err);
     }
     if (play === finale) break;
+    sparkles.sweep();
     stage.classList.add('stage--out');
     await wait(700);
     stage.remove();

@@ -1,5 +1,5 @@
 import './06-stats.css';
-import { h, nextButton, loop, reducedMotion, wait } from '../lib/utils.js';
+import { h, shine, nextButton, loop, reducedMotion, wait } from '../lib/utils.js';
 
 const NUM = /^(\D*?)(\d{1,3}(?:([.,\s])\d{3})+|\d+)(\D*)$/;
 
@@ -43,7 +43,7 @@ export default async function play(stage, ctx) {
     stats.map((s, i) => card(i + 1, '', s.icon, parse(s.value), s.label)));
 
   stage.append(h('div', { class: 's6-wrap' },
-    h('div', { class: 's6-inner' }, h('h2', { class: 's6-title' }, settings.statsTitle), grid)));
+    h('div', { class: 's6-inner' }, h('h2', { class: 's6-title' }, shine(settings.statsTitle)), grid)));
 
   let stop = () => {};
   if (counters.length) {

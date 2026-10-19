@@ -1,5 +1,5 @@
 import './02-bloom.css';
-import { h, wait, isSmall, reducedMotion } from '../lib/utils.js';
+import { h, shine, wait, isSmall, reducedMotion } from '../lib/utils.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const PETAL = 'M0,2 C-19,-4 -28,-33 -13,-44 C-7,-49 -3,-44 0,-46 C3,-44 7,-49 13,-44 C28,-33 19,-4 0,2Z';
@@ -55,7 +55,7 @@ const rand = (a, b) => a + Math.random() * (b - a);
 export default async function play(stage) {
   const reduce = reducedMotion();
   const field = h('div', { class: 's2-field' });
-  const text = h('p', { class: 's2-text' }, 'Chúc mừng ngày 20 tháng 10');
+  const text = h('p', { class: 's2-text' }, shine('Chúc mừng ngày 20 tháng 10'));
   stage.append(roseDefs(), field, text);
 
   const w = stage.clientWidth || innerWidth;

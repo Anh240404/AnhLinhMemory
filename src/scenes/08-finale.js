@@ -1,5 +1,5 @@
 import './08-finale.css';
-import { h, dpr, isSmall, loop, reducedMotion } from '../lib/utils.js';
+import { h, shine, dpr, isSmall, loop, reducedMotion } from '../lib/utils.js';
 
 const COLORS = ['#f472b6', '#fb7185', '#c084fc', '#fde2ea', '#e9c98b', '#ff4d8d'];
 
@@ -133,9 +133,9 @@ export default async function play(stage, ctx) {
   const yes = h('button', { class: 's8-yes', type: 'button' }, settings.finalYes);
   const no = h('button', { class: 's8-no', type: 'button' }, settings.finalNo);
   const ask = h('div', { class: 's8-ask' },
-    h('h1', { class: 's8-q' }, settings.finalQuestion),
+    h('h1', { class: 's8-q' }, shine(settings.finalQuestion)),
     h('div', { class: 's8-btns' }, yes, no));
-  const thanks = h('p', { class: 's8-thanks', 'aria-live': 'polite' }, settings.finalThanks);
+  const thanks = h('p', { class: 's8-thanks', 'aria-live': 'polite' }, shine(settings.finalThanks));
   stage.append(ask, thanks);
 
   let scale = 1, freed = false, lock = 0, done = false;

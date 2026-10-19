@@ -20,6 +20,9 @@ export function h(tag, attrs = {}, ...children) {
   return el;
 }
 
+/** Chữ ánh kim: bọc text trong span có vệt sáng quét qua (CSS .shine trong base.css). */
+export const shine = (text) => h('span', { class: 'shine', 'data-text': text }, text);
+
 /**
  * Hiện nút "Tiếp ›" (kèm "‹ Quay lại" nếu main.js cho phép qua stage.dataset.canBack) ở đáy màn hình.
  * Resolve khi bấm nút nào cũng được; hướng đi ghi vào stage.dataset.nav ('next' | 'back') để main.js đọc.

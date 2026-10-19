@@ -1,5 +1,5 @@
 import './09-reel.css';
-import { h, wait, nextButton } from '../lib/utils.js';
+import { h, shine, wait, nextButton } from '../lib/utils.js';
 
 const COVER_MS = 3000;
 
@@ -29,7 +29,7 @@ export default async function play(stage, ctx) {
 
   stage.append(
     h('div', { class: 's9-wrap' },
-      h('h2', { class: 's9-title' }, s.reelTitle),
+      h('h2', { class: 's9-title' }, shine(s.reelTitle)),
       frame,
       h('div', { class: 's9-dots', 'aria-hidden': 'true' }, dots),
       caption,

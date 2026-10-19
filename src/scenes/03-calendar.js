@@ -1,5 +1,5 @@
 import './03-calendar.css';
-import { h, wait, nextButton, preload, reducedMotion, isSmall } from '../lib/utils.js';
+import { h, shine, wait, nextButton, preload, reducedMotion, isSmall } from '../lib/utils.js';
 
 const N = 10; // lưới trái tim N×N
 const M = 0.25; // phần thừa cho tai puzzle (theo đơn vị ô)
@@ -140,7 +140,7 @@ export default async function play(stage, ctx) {
 
   stage.append(h('div', { class: 's3-wrap' },
     h('div', { class: 's3-card' },
-      h('h2', { class: 's3-title' }, h('span', {}, s.cardTitleLeft), heartIcon(), h('span', {}, s.cardTitleRight)),
+      h('h2', { class: 's3-title' }, shine(s.cardTitleLeft), heartIcon(), shine(s.cardTitleRight)),
       h('div', { class: 's3-body' },
         h('div', { class: 's3-heart-box' }, heart),
         h('div', { class: 's3-right' },
