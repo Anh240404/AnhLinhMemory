@@ -6,7 +6,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
-        admin: resolve(import.meta.dirname, 'admin.html'),
+        // Tên "admin" trong file JS/CSS hay bị trình chặn quảng cáo (Cốc Cốc) chặn → đặt tên trung tính.
+        panel: resolve(import.meta.dirname, 'admin.html'),
       },
     },
   },
