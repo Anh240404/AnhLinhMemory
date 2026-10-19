@@ -133,7 +133,7 @@ export default async function play(stage, ctx) {
   const yes = h('button', { class: 's8-yes', type: 'button' }, settings.finalYes);
   const no = h('button', { class: 's8-no', type: 'button' }, settings.finalNo);
   const ask = h('div', { class: 's8-ask' },
-    h('h1', { class: 's8-q' }, shine(settings.finalQuestion)),
+    h('h1', { class: 's8-q' }, settings.finalQuestion),
     h('div', { class: 's8-btns' }, yes, no));
   const thanks = h('p', { class: 's8-thanks', 'aria-live': 'polite' }, shine(settings.finalThanks));
   stage.append(ask, thanks);

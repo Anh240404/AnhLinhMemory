@@ -20,12 +20,22 @@
   font-weight: 700;
   font-size: clamp(2.1rem, 9.5vw, 4.4rem);
   line-height: 1.2;
-  background: linear-gradient(120deg, #fff 10%, var(--blush) 40%, var(--pink) 72%, var(--gold));
+  /* Lớp 1: vệt ánh kim chạy ngang; lớp 2: màu gradient. Không lồng .shine vì Safari iPhone vẽ sai. */
+  background:
+    linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.95) 48%, rgba(255, 233, 170, 0.95) 52%, transparent 62%) no-repeat,
+    linear-gradient(120deg, #fff 10%, var(--blush) 40%, var(--pink) 72%, var(--gold));
+  background-size: 300% 100%, 100% 100%;
+  background-position: 90% 0, 0 0;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 0 18px rgba(192, 132, 252, 0.55));
-  animation: s8-in 1s var(--ease-out) both;
+  animation: s8-in 1s var(--ease-out) both, s8-title-shine 5s ease-in-out 1.2s infinite;
+}
+@keyframes s8-title-shine {
+  0% { background-position: 90% 0, 0 0; }
+  55%, 100% { background-position: 10% 0, 0 0; }
 }
 
 .s8-btns {
