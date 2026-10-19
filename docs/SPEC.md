@@ -12,7 +12,7 @@ Hai vai trò:
 ## Dữ liệu (`ctx.content`, xem `src/lib/content.js`)
 - `settings` — object, key ở `DEFAULT_SETTINGS`.
 - `photos[]` `{id,url,caption,sort_order}` · `messages[]` `{id,text}` · `stats[]` `{id,icon,value,label}`.
-- Không bao giờ rỗng (có dữ liệu demo dự phòng).
+- `photos`, `messages` không bao giờ rỗng (có dữ liệu demo dự phòng). `stats` có thể rỗng (không dùng mẫu).
 
 ## Các cảnh (khách)
 

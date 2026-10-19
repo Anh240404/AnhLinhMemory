@@ -78,7 +78,7 @@ export const DEMO_STATS = [
  * @typedef {{ settings: typeof DEFAULT_SETTINGS, photos: Photo[], messages: Message[], stats: Stat[], demo: boolean }} Content
  */
 
-/** @returns {Promise<Content>} photos/messages/stats luôn có ít nhất 1 phần tử. */
+/** @returns {Promise<Content>} photos/messages luôn có ít nhất 1 phần tử; stats có thể rỗng. */
 export async function fetchContent() {
   if (!supabase) {
     return { settings: { ...DEFAULT_SETTINGS }, photos: DEMO_PHOTOS, messages: DEMO_MESSAGES, stats: DEMO_STATS, demo: true };
@@ -100,7 +100,8 @@ export async function fetchContent() {
     },
     photos: p.data?.length ? p.data : DEMO_PHOTOS,
     messages: m.data?.length ? m.data : DEMO_MESSAGES,
-    stats: st.data?.length ? st.data : DEMO_STATS,
+    // Chỉ số không dùng mẫu: chưa nhập trong admin thì cảnh 6 chỉ hiện thẻ số ngày bên nhau.
+    stats: st.data ?? [],
     demo: false,
   };
 }
